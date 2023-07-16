@@ -245,6 +245,7 @@ type Student struct {
 	Name    string   `thrift:"name,2,required" frugal:"2,required,string" json:"name"`
 	College *College `thrift:"college,3,required" frugal:"3,required,College" json:"college"`
 	Email   []string `thrift:"email,4,optional" frugal:"4,optional,list<string>" json:"email,omitempty"`
+	Sex     string   `thrift:"sex,5,required" frugal:"5,required,string" json:"sex"`
 }
 
 func NewStudent() *Student {
@@ -280,6 +281,10 @@ func (p *Student) GetEmail() (v []string) {
 	}
 	return p.Email
 }
+
+func (p *Student) GetSex() (v string) {
+	return p.Sex
+}
 func (p *Student) SetId(val int32) {
 	p.Id = val
 }
@@ -292,12 +297,16 @@ func (p *Student) SetCollege(val *College) {
 func (p *Student) SetEmail(val []string) {
 	p.Email = val
 }
+func (p *Student) SetSex(val string) {
+	p.Sex = val
+}
 
 var fieldIDToName_Student = map[int16]string{
 	1: "id",
 	2: "name",
 	3: "college",
 	4: "email",
+	5: "sex",
 }
 
 func (p *Student) IsSetCollege() bool {
@@ -315,6 +324,7 @@ func (p *Student) Read(iprot thrift.TProtocol) (err error) {
 	var issetId bool = false
 	var issetName bool = false
 	var issetCollege bool = false
+	var issetSex bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
 		goto ReadStructBeginError
@@ -373,6 +383,17 @@ func (p *Student) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
+		case 5:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetSex = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -399,6 +420,11 @@ func (p *Student) Read(iprot thrift.TProtocol) (err error) {
 
 	if !issetCollege {
 		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetSex {
+		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -467,6 +493,15 @@ func (p *Student) ReadField4(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *Student) ReadField5(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Sex = v
+	}
+	return nil
+}
+
 func (p *Student) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	if err = oprot.WriteStructBegin("Student"); err != nil {
@@ -487,6 +522,10 @@ func (p *Student) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField4(oprot); err != nil {
 			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
 			goto WriteFieldError
 		}
 
@@ -586,6 +625,23 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
+func (p *Student) writeField5(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("sex", thrift.STRING, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Sex); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
 func (p *Student) String() string {
 	if p == nil {
 		return "<nil>"
@@ -609,6 +665,9 @@ func (p *Student) DeepEqual(ano *Student) bool {
 		return false
 	}
 	if !p.Field4DeepEqual(ano.Email) {
+		return false
+	}
+	if !p.Field5DeepEqual(ano.Sex) {
 		return false
 	}
 	return true
@@ -645,6 +704,13 @@ func (p *Student) Field4DeepEqual(src []string) bool {
 		if strings.Compare(v, _src) != 0 {
 			return false
 		}
+	}
+	return true
+}
+func (p *Student) Field5DeepEqual(src string) bool {
+
+	if strings.Compare(p.Sex, src) != 0 {
+		return false
 	}
 	return true
 }

@@ -26,6 +26,7 @@ type Student struct {
 	Email string
 	CollegeName string
 	CollegeAddress string
+	Sex string
 	//CreatedAt time.Time `gorm:"default:CURRENT_TMESTAMP`
 }
 
@@ -58,6 +59,7 @@ func (s *StudentServiceImpl) Query(ctx context.Context, req *demo.QueryReq) (res
 				Address: stuRes.CollegeAddress,
 			},
 			Email: strings.Split(stuRes.Email, ","),
+			Sex: stuRes.Sex,
 		}
 	}
 	return
@@ -91,6 +93,7 @@ func student2Model(student *demo.Student) *Student{
 		CollegeName: student.College.Name,
 		CollegeAddress: student.College.Address,
 		Email : strings.Join(student.Email, ","),
+		Sex: student.Sex,
 	}
 	return stu
 }
@@ -124,6 +127,7 @@ func (s *StudentServiceImpl)GenericCall(ctx context.Context, method string, requ
 
 		return respStr, nil
 	}else{
+		fmt.Println("query!!!")
 		reqStr, ok := request.(string)
 		if !ok {
 			return nil, errors.New("Invalid request type, cannot transfer it to json string")

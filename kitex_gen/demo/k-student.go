@@ -218,6 +218,7 @@ func (p *Student) FastRead(buf []byte) (int, error) {
 	var issetId bool = false
 	var issetName bool = false
 	var issetCollege bool = false
+	var issetSex bool = false
 	_, l, err = bthrift.Binary.ReadStructBegin(buf)
 	offset += l
 	if err != nil {
@@ -293,6 +294,21 @@ func (p *Student) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 5:
+			if fieldTypeId == thrift.STRING {
+				l, err = p.FastReadField5(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+				issetSex = true
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -325,6 +341,11 @@ func (p *Student) FastRead(buf []byte) (int, error) {
 
 	if !issetCollege {
 		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetSex {
+		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -415,6 +436,20 @@ func (p *Student) FastReadField4(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *Student) FastReadField5(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+
+		p.Sex = v
+
+	}
+	return offset, nil
+}
+
 // for compatibility
 func (p *Student) FastWrite(buf []byte) int {
 	return 0
@@ -428,6 +463,7 @@ func (p *Student) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter)
 		offset += p.fastWriteField2(buf[offset:], binaryWriter)
 		offset += p.fastWriteField3(buf[offset:], binaryWriter)
 		offset += p.fastWriteField4(buf[offset:], binaryWriter)
+		offset += p.fastWriteField5(buf[offset:], binaryWriter)
 	}
 	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
 	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
@@ -442,6 +478,7 @@ func (p *Student) BLength() int {
 		l += p.field2Length()
 		l += p.field3Length()
 		l += p.field4Length()
+		l += p.field5Length()
 	}
 	l += bthrift.Binary.FieldStopLength()
 	l += bthrift.Binary.StructEndLength()
@@ -493,6 +530,15 @@ func (p *Student) fastWriteField4(buf []byte, binaryWriter bthrift.BinaryWriter)
 	return offset
 }
 
+func (p *Student) fastWriteField5(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "sex", thrift.STRING, 5)
+	offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.Sex)
+
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
 func (p *Student) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("id", thrift.I32, 1)
@@ -531,6 +577,15 @@ func (p *Student) field4Length() int {
 		l += bthrift.Binary.ListEndLength()
 		l += bthrift.Binary.FieldEndLength()
 	}
+	return l
+}
+
+func (p *Student) field5Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("sex", thrift.STRING, 5)
+	l += bthrift.Binary.StringLengthNocopy(p.Sex)
+
+	l += bthrift.Binary.FieldEndLength()
 	return l
 }
 
